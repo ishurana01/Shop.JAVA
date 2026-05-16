@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SHOP.JAVA — My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0a0a0f; --surface:#12121a; --surface2:#1a1a26;
+      --border:#2a2a3d; --accent:#6c63ff; --accent2:#ff6584;
+      --accent3:#43e97b; --text:#e8e8f0; --muted:#6b6b8a; --danger:#ff4d6d;
+    }
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    body{ background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; }
+
+    nav{ background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; height:64px; display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo{ font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .back-btn{ background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; border-radius:10px; cursor:pointer; font-size:0.85rem; transition:all 0.2s; }
+    .back-btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+    .page{ max-width:800px; margin:40px auto; padding:0 20px; }
+
+    /* Profile Header */
+    .profile-header{
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:20px; padding:28px;
+      display:flex; align-items:center; gap:20px; margin-bottom:28px;
+    }
+    .avatar{
+      width:70px; height:70px; border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:#fff;
+      flex-shrink:0;
+    }
+    .profile-info h2{ font-family:'Syne',sans-serif; font-size:1.3rem; }
+    .profile-info p{ color:var(--muted); font-size:0.85rem; margin-top:4px; }
+
+    /* Section */
+    .section-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .section-header h3{ font-family:'Syne',sans-serif; font-size:1rem; }
+    .add-btn{
+      background:var(--accent); border:none; color:#fff;
+      padding:9px 18px; border-radius:10px; cursor:pointer;
+      font-family:'Syne',sans-serif; font-weight:700; font-size:0.82rem;
+      transition:all 0.3s;
+    }
+    .add-btn:hover{ transform:translateY(-1px); box-shadow:0 5px 15px rgba(108,99,255,0.4); }
+
+    /* Address Cards */
+    .addresses-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+    .address-card{
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:16px; padding:20px; position:relative;
+      transition:all 0.3s;
+    }
+    .address-card.default{ border-color:var(--accent3); }
+    .default-badge{
+      position:absolute; top:14px; right:14px;
+      background:rgba(67,233,123,0.15); color:var(--accent3);
+      padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:700;
+    }
+    .address-name{ font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; margin-bottom:6px; }
+    .address-phone{ color:var(--muted); font-size:0.82rem; margin-bottom:10px; }
+    .address-text{ font-size:0.88rem; line-height:1.6; color:#b0b0c8; }
+    .address-actions{ display:flex; gap:8px; margin-top:14px; }
+    .act-btn{
+      flex:1; padding:8px; border-radius:8px; border:none;
+      cursor:pointer; font-size:0.78rem; font-weight:600; transition:all 0.2s;
+    }
+    .set-default-btn{ background:rgba(108,99,255,0.15); color:var(--accent); }
+    .set-default-btn:hover{ background:var(--accent); color:#fff; }
+    .delete-btn{ background:rgba(255,77,109,0.15); color:var(--danger); }
+    .delete-btn:hover{ background:var(--danger); color:#fff; }
+
+    .empty-state{ text-align:center; padding:48px; color:var(--muted); }
+    .empty-state div{ font-size:2.5rem; margin-bottom:10px; }
+
+    /* Modal */
+    .modal-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,0.75);
+      backdrop-filter:blur(4px); z-index:100;
+      display:none; align-items:center; justify-content:center;
+    }
+    .modal-overlay.open{ display:flex; }
+    .modal{
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:20px; padding:32px; width:100%; max-width:460px;
+      animation:popIn 0.3s ease; max-height:90vh; overflow-y:auto;
+    }
+    .modal h3{ font-family:'Syne',sans-serif; font-size:1.1rem; margin-bottom:20px; }
+    .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-group{ margin-bottom:14px; }
+    .form-group label{ display:block; margin-bottom:6px; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); }
+    .form-group input{
+      width:100%; padding:11px 14px;
+      background:var(--surface2); border:1px solid var(--border);
+      border-radius:10px; color:var(--text);
+      font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:all 0.3s;
+    }
+    .form-group input:focus{ border-color:var(--accent); }
+    .checkbox-row{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+    .checkbox-row input{ width:auto; }
+    .checkbox-row label{ font-size:0.88rem; color:var(--muted); text-transform:none; letter-spacing:0; }
+    .modal-btns{ display:flex; gap:10px; }
+    .save-btn{ flex:1; padding:13px; background:var(--accent); border:none; border-radius:10px; color:#fff; font-family:'Syne',sans-serif; font-weight:700; cursor:pointer; transition:all 0.3s; }
+    .save-btn:hover{ background:#5a52e0; }
+    .cancel-btn{ flex:1; padding:13px; background:none; border:1px solid var(--border); border-radius:10px; color:var(--muted); font-family:'Syne',sans-serif; font-weight:600; cursor:pointer; }
+    .cancel-btn:hover{ border-color:var(--danger); color:var(--danger); }
+
+    .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface2); border:1px solid var(--border); padding:12px 24px; border-radius:12px; font-size:0.9rem; transition:transform 0.3s; z-index:200; }
+    .toast.show{ transform:translateX(-50%) translateY(0); }
+
+    @keyframes popIn{ from{ opacity:0; transform:scale(0.9); } to{ opacity:1; transform:scale(1); } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">SHOP.JAVA</div>
+    <button class="back-btn" onclick="window.location.href='customer.html'">← Back to Shop</button>
+  </nav>
+
+  <div class="page">
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="avatar" id="avatarInitial">?</div>
+      <div class="profile-info">
+        <h2 id="profileName">Loading...</h2>
+        <p id="profileEmail">--</p>
+      </div>
+    </div>
+
+    <!-- Addresses Section -->
+    <div class="section-header">
+      <h3>📍 Saved Addresses</h3>
+      <button class="add-btn" onclick="openModal()">+ Add New Address</button>
+    </div>
+
+    <div class="addresses-grid" id="addressesGrid">
+      <div class="empty-state">
+        <div>📭</div>
+        <p>Loading addresses...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Add Address Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3>Add New Address</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input id="aFullName" placeholder="Ishu Rana"/>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input id="aPhone" placeholder="9876543210" maxlength="10"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Street / House No. / Area</label>
+        <input id="aStreet" placeholder="123, Green Park, Near Metro Station"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <input id="aCity" placeholder="Noida"/>
+        </div>
+        <div class="form-group">
+          <label>State</label>
+          <input id="aState" placeholder="Uttar Pradesh"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Pincode</label>
+        <input id="aPincode" placeholder="201301" maxlength="6"/>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="aDefault"/>
+        <label for="aDefault">Set as default address</label>
+      </div>
+      <div class="modal-btns">
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="save-btn" onclick="saveAddress()">Save Address</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    // Load profile info
+    function loadProfile() {
+      if (!user || !user.name) {
+        window.location.href = '../index.html';
+        return;
+      }
+      document.getElementById('profileName').textContent  = user.name;
+      document.getElementById('profileEmail').textContent = user.email;
+      document.getElementById('avatarInitial').textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    // Load addresses from backend
+    async function loadAddresses() {
+      try {
+        const res  = await fetch(`http://localhost:8080/ECommerceApp/AddressServlet?userId=${user.userId}`);
+        const data = await res.json();
+        renderAddresses(data.addresses || []);
+      } catch(e) {
+        renderAddresses([]);
+      }
+    }
+
+    function renderAddresses(addresses) {
+      const grid = document.getElementById('addressesGrid');
+      if (!addresses.length) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div>📭</div>
+            <p>No addresses saved yet.<br/>Click "Add New Address" to add one.</p>
+          </div>`;
+        return;
+      }
+      grid.innerHTML = addresses.map(a => `
+        <div class="address-card ${a.default ? 'default' : ''}">
+          ${a.default ? '<span class="default-badge">✓ Default</span>' : ''}
+          <div class="address-name">${a.fullName}</div>
+          <div class="address-phone">📞 ${a.phone}</div>
+          <div class="address-text">
+            ${a.street},<br/>
+            ${a.city}, ${a.state} — ${a.pincode}
+          </div>
+          <div class="address-actions">
+            ${!a.default ? `<button class="act-btn set-default-btn" onclick="setDefault(${a.addressId})">Set Default</button>` : '<button class="act-btn set-default-btn" disabled style="opacity:0.4;cursor:default">Default ✓</button>'}
+            <button class="act-btn delete-btn" onclick="deleteAddress(${a.addressId})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      // Clear form
+      ['aFullName','aPhone','aStreet','aCity','aState','aPincode'].forEach(
+        id => document.getElementById(id).value = ''
+      );
+      document.getElementById('aDefault').checked = false;
+    }
+
+    async function saveAddress() {
+      const fullName = document.getElementById('aFullName').value.trim();
+      const phone    = document.getElementById('aPhone').value.trim();
+      const street   = document.getElementById('aStreet').value.trim();
+      const city     = document.getElementById('aCity').value.trim();
+      const state    = document.getElementById('aState').value.trim();
+      const pincode  = document.getElementById('aPincode').value.trim();
+      const isDefault = document.getElementById('aDefault').checked;
+
+      if (!fullName || !phone || !street || !city || !state || !pincode) {
+        showToast('❌ Please fill all fields');
+        return;
+      }
+      if (phone.length !== 10) {
+        showToast('❌ Phone must be 10 digits');
+        return;
+      }
+      if (pincode.length !== 6) {
+        showToast('❌ Pincode must be 6 digits');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:8080/ECommerceApp/AddressServlet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `action=save&userId=${user.userId}&fullName=${encodeURIComponent(fullName)}&phone=${phone}&street=${encodeURIComponent(street)}&city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&pincode=${pincode}&isDefault=${isDefault ? 1 : 0}`
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ Address saved!');
+          closeModal();
+          loadAddresses();
+        } else {
+          showToast('❌ Failed to save address');
+        }
+      } catch(e) {
+        showToast('❌ Server not reachable');
+      }
+    }
+
+    async function deleteAddress(addressId) {
+      if (!confirm('Delete this address?')) return;
+      try {
+        const res = await fetch('http://localhost:8080/ECommerceApp/AddressServlet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `action=delete&addressId=${addressId}`
+        });
+        const data = await res.json();
+        if (data.success) { showToast('🗑️ Address deleted'); loadAddresses(); }
+      } catch(e) { showToast('❌ Server not reachable'); }
+    }
+
+    async function setDefault(addressId) {
+      try {
+        const res = await fetch('http://localhost:8080/ECommerceApp/AddressServlet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `action=setDefault&addressId=${addressId}&userId=${user.userId}`
+        });
+        const data = await res.json();
+        if (data.success) { showToast('✅ Default address updated!'); loadAddresses(); }
+      } catch(e) { showToast('❌ Server not reachable'); }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    loadProfile();
+    loadAddresses();
+  </script>
+</body>
+</html>

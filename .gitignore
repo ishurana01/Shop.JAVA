@@ -1,0 +1,17 @@
+# IntelliJ files
+.idea/
+*.iml
+out/
+
+# Compiled Java
+*.class
+*.jar
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tomcat logs
+*.log
+
+# Keep lib folder but ignore sensitive configs

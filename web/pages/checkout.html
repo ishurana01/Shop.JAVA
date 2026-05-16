@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SHOP.JAVA — Checkout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;
+      --border:#2a2a3d;--accent:#6c63ff;--accent2:#ff6584;
+      --accent3:#43e97b;--text:#e8e8f0;--muted:#6b6b8a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+    nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .back-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:10px;cursor:pointer;font-size:0.85rem;transition:all 0.2s;}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+    .page{max-width:900px;margin:40px auto;padding:0 20px;display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+    @media(max-width:700px){.page{grid-template-columns:1fr;}}
+
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;}
+    .card h2{font-family:'Syne',sans-serif;font-size:1.1rem;margin-bottom:20px;}
+
+    .order-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+    .order-item-name{font-size:0.9rem;}
+    .order-item-meta{font-size:0.8rem;color:var(--muted);}
+    .order-item-price{font-weight:600;font-size:0.95rem;}
+
+    .summary-row{display:flex;justify-content:space-between;padding:8px 0;font-size:0.9rem;color:var(--muted);}
+    .summary-row.total{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text);border-top:1px solid var(--border);margin-top:8px;padding-top:14px;}
+    .summary-row.total span:last-child{color:var(--accent3);}
+
+    .place-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;border-radius:14px;color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all 0.3s;margin-top:20px;}
+    .place-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(108,99,255,0.5);}
+    .place-btn:disabled{opacity:0.5;pointer-events:none;}
+
+    /* INVOICE */
+    .invoice{display:none;max-width:600px;margin:40px auto;padding:0 20px;}
+    .invoice-card{background:var(--surface);border:1px solid var(--accent3);border-radius:20px;padding:36px;animation:popIn 0.5s ease;}
+    .invoice-header{text-align:center;margin-bottom:28px;}
+    .invoice-header .tick{font-size:3rem;margin-bottom:8px;animation:bounce 0.5s ease 0.3s both;}
+    .invoice-header h2{font-family:'Syne',sans-serif;font-size:1.5rem;color:var(--accent3);}
+    .invoice-header p{color:var(--muted);font-size:0.85rem;margin-top:4px;}
+    .invoice-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+    .meta-item label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);}
+    .meta-item p{font-weight:600;font-size:0.95rem;margin-top:2px;}
+    .invoice-items{margin-bottom:20px;}
+    .inv-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.9rem;}
+    .inv-totals{background:var(--surface2);border-radius:12px;padding:16px;}
+    .inv-row{display:flex;justify-content:space-between;padding:5px 0;font-size:0.88rem;color:var(--muted);}
+    .inv-row.grand{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--text);border-top:1px solid var(--border);margin-top:6px;padding-top:10px;}
+    .inv-row.grand span:last-child{color:var(--accent3);}
+    .invoice-footer{text-align:center;margin-top:24px;color:var(--muted);font-size:0.85rem;}
+    .new-order-btn{display:block;width:100%;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Syne',sans-serif;font-weight:600;cursor:pointer;margin-top:16px;transition:all 0.3s;}
+    .new-order-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+    @keyframes popIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
+    @keyframes bounce{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">SHOP.JAVA</div>
+    <button class="back-btn" onclick="history.back()">← Back to Shop</button>
+  </nav>
+
+  <div class="page" id="checkoutPage">
+    <div class="card">
+        <h2>📦 Order Summary</h2>
+        <div id="orderItems"></div>
+    </div>
+    <div class="card">
+
+        <!-- ADDRESS SECTION — NEW -->
+        <div id="addressSection"></div>
+
+        <h2>💰 Price Details</h2>
+        <div id="priceSummary"></div>
+        <button class="place-btn" id="placeBtn" onclick="placeOrder()">
+            Place Order →
+        </button>
+    </div>
+</div>
+
+<!-- Invoice -->
+<div class="invoice" id="invoicePage">
+    <div class="invoice-card">
+        <div class="invoice-header">
+            <div class="tick">✅</div>
+            <h2>Order Placed!</h2>
+            <p>Your order has been confirmed successfully</p>
+        </div>
+        <div class="invoice-meta">
+            <div class="meta-item"><label>Order ID</label><p id="invOrderId">#--</p></div>
+            <div class="meta-item"><label>Customer</label><p id="invCustomer">--</p></div>
+            <div class="meta-item"><label>Date</label><p id="invDate">--</p></div>
+            <div class="meta-item"><label>Payment</label><p>Cash on Delivery</p></div>
+        </div>
+
+        <!-- ADDRESS ON INVOICE — NEW -->
+        <div style="background:#1a1a26;border-radius:12px;padding:16px;margin-bottom:20px;">
+            <p style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;
+                      color:#6b6b8a;margin-bottom:8px;">Delivery Address</p>
+            <p id="invAddress" style="font-size:0.88rem;line-height:1.7;color:#b0b0c8;"></p>
+        </div>
+
+        <div class="invoice-items" id="invItems"></div>
+        <div class="inv-totals" id="invTotals"></div>
+        <div class="invoice-footer">Thank you for shopping with SHOP.JAVA! 🙏</div>
+        <button class="new-order-btn" onclick="newOrder()">Continue Shopping →</button>
+    </div>
+</div>
+
+<script>
+    let cart = [];
+    let user = {};
+    let selectedAddress = null;
+
+    try {
+        cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        user = JSON.parse(localStorage.getItem('user') || '{}');
+    } catch(e) { cart = []; user = {}; }
+
+    // Load default address first
+    async function loadDefaultAddress() {
+    try {
+        const res  = await fetch(`http://localhost:8080/ECommerceApp/AddressServlet?userId=${user.userId}`);
+        const data = await res.json();
+        allAddresses    = data.addresses || [];  // ← store globally
+        selectedAddress = allAddresses.find(a => a.default) || allAddresses[0] || null;
+        console.log('Loaded addresses:', allAddresses);
+        console.log('Selected address:', selectedAddress);
+        renderAddressSection(allAddresses);
+    } catch(e) {
+        console.log('Address load error:', e);
+        renderAddressSection([]);
+    }
+}
+    function renderAddressSection(addresses) {
+        const container = document.getElementById('addressSection');
+
+        if (!addresses.length) {
+            container.innerHTML = `
+                <div style="background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);
+                            border-radius:12px;padding:16px;margin-bottom:20px;">
+                    <p style="color:#ff8fab;font-size:0.9rem;margin-bottom:10px;">
+                        ⚠️ No address found! Please add an address before placing order.
+                    </p>
+                    <button onclick="window.location.href='profile.html'"
+                        style="background:#6c63ff;border:none;color:#fff;padding:9px 18px;
+                               border-radius:10px;cursor:pointer;font-size:0.85rem;font-weight:700;">
+                        + Add Address
+                    </button>
+                </div>`;
+            // Disable place order button
+            document.getElementById('placeBtn').disabled = true;
+            document.getElementById('placeBtn').style.opacity = '0.4';
+            document.getElementById('placeBtn').textContent   = 'Add Address to Continue';
+            return;
+        }
+
+        // Show address selector
+        container.innerHTML = `
+            <div style="margin-bottom:20px;">
+                <label style="font-size:0.75rem;text-transform:uppercase;
+                              letter-spacing:0.5px;color:#6b6b8a;display:block;margin-bottom:10px;">
+                    Deliver To
+                </label>
+                <div id="addressCards" style="display:flex;flex-direction:column;gap:10px;">
+                    ${addresses.map(a => `
+                        <div onclick="selectAddress(${a.addressId})"
+                            id="addrCard_${a.addressId}"
+                            style="background:#1a1a26;border:2px solid ${a.default || (!selectedAddress && addresses[0].addressId === a.addressId) ? '#6c63ff' : '#2a2a3d'};
+                                   border-radius:12px;padding:14px;cursor:pointer;transition:all 0.2s;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;">
+                                <div>
+                                    <p style="font-weight:700;font-size:0.9rem">${a.fullName}</p>
+                                    <p style="color:#6b6b8a;font-size:0.8rem;margin-top:2px">📞 ${a.phone}</p>
+                                    <p style="font-size:0.85rem;color:#b0b0c8;margin-top:6px;line-height:1.5">
+                                        ${a.street}, ${a.city},<br/>${a.state} — ${a.pincode}
+                                    </p>
+                                </div>
+                                <span id="tick_${a.addressId}"
+                                    style="color:#6c63ff;font-size:1.2rem;display:${a.default ? 'block' : 'none'}">✓</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button onclick="window.location.href='profile.html'"
+                    style="background:none;border:1px solid #2a2a3d;color:#6b6b8a;
+                           padding:8px 16px;border-radius:10px;cursor:pointer;
+                           font-size:0.8rem;margin-top:10px;transition:all 0.2s;"
+                    onmouseover="this.style.borderColor='#6c63ff';this.style.color='#6c63ff'"
+                    onmouseout="this.style.borderColor='#2a2a3d';this.style.color='#6b6b8a'">
+                    + Add New Address
+                </button>
+            </div>`;
+    }
+
+   // Store all addresses globally
+let allAddresses = [];
+
+function selectAddress(addressId) {
+    // Update UI
+    document.querySelectorAll('[id^="addrCard_"]').forEach(card => {
+        card.style.borderColor = '#2a2a3d';
+    });
+    document.querySelectorAll('[id^="tick_"]').forEach(tick => {
+        tick.style.display = 'none';
+    });
+    document.getElementById(`addrCard_${addressId}`).style.borderColor = '#6c63ff';
+    document.getElementById(`tick_${addressId}`).style.display = 'block';
+
+    // Set directly from stored list — no re-fetch needed
+    selectedAddress = allAddresses.find(a => a.addressId === addressId);
+    console.log('Selected address:', selectedAddress); // for debugging
+}
+
+    function renderCheckout() {
+        if (!cart || cart.length === 0) {
+            alert('Your cart is empty!');
+            window.location.href = 'customer.html';
+            return;
+        }
+
+        // Render order items
+        document.getElementById('orderItems').innerHTML = cart.map(i => `
+            <div class="order-item">
+                <div>
+                    <div class="order-item-name">${i.name}</div>
+                    <div class="order-item-meta">x${i.qty} @ Rs.${Number(i.price).toLocaleString()}</div>
+                </div>
+                <div class="order-item-price">Rs.${(i.price * i.qty).toLocaleString()}</div>
+            </div>
+        `).join('');
+
+        // Render price summary
+        const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+        const gst      = subtotal * 0.18;
+        const total    = subtotal + gst;
+        document.getElementById('priceSummary').innerHTML = `
+            <div class="summary-row"><span>Subtotal</span><span>Rs.${subtotal.toLocaleString()}</span></div>
+            <div class="summary-row"><span>GST (18%)</span><span>Rs.${Math.round(gst).toLocaleString()}</span></div>
+            <div class="summary-row total"><span>Grand Total</span><span>Rs.${Math.round(total).toLocaleString()}</span></div>
+        `;
+    }
+
+    async function placeOrder() {
+        // Final check — address must be selected
+        if (!selectedAddress) {
+            alert('⚠️ Please add a delivery address first!');
+            window.location.href = 'profile.html';
+            return;
+        }
+
+        const btn = document.getElementById('placeBtn');
+        btn.disabled = true;
+        btn.textContent = 'Placing Order...';
+
+        const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+        const total    = subtotal * 1.18;
+
+        try {
+            const res = await fetch('http://localhost:8080/ECommerceApp/OrderServlet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId:        user.userId,
+                    customerName:  user.name,
+                    customerEmail: user.email,
+                    address:       selectedAddress,   // ← SEND ADDRESS
+                    cart:          cart,
+                    totalAmount:   Math.round(total)
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showInvoice(data.orderId);
+            } else {
+                btn.disabled    = false;
+                btn.textContent = 'Place Order →';
+                alert('Order failed: ' + data.message);
+            }
+        } catch(e) {
+            showInvoice(Math.floor(Math.random() * 9000) + 1000);
+        }
+    }
+
+    function showInvoice(orderId) {
+        localStorage.removeItem('cart');
+        document.getElementById('checkoutPage').style.display = 'none';
+        document.getElementById('invoicePage').style.display  = 'block';
+
+        document.getElementById('invOrderId').textContent  = `#${orderId}`;
+        document.getElementById('invCustomer').textContent = user.name || 'Customer';
+        document.getElementById('invDate').textContent     = new Date().toLocaleDateString('en-IN');
+
+    
+       // Show address on invoice
+const invAddr = document.getElementById('invAddress');
+if (selectedAddress && invAddr) {
+    invAddr.innerHTML =
+        `<strong>${selectedAddress.fullName}</strong><br/>` +
+        `📞 ${selectedAddress.phone}<br/>` +
+        `${selectedAddress.street},<br/>` +
+        `${selectedAddress.city}, ${selectedAddress.state} — ${selectedAddress.pincode}`;
+} else if (invAddr) {
+    invAddr.innerHTML = '<span style="color:#ff8fab">No address provided</span>';
+}
+
+        // Invoice items
+        document.getElementById('invItems').innerHTML = cart.map(i => `
+            <div class="inv-item">
+                <span>${i.name} x${i.qty}</span>
+                <span>Rs.${(i.price * i.qty).toLocaleString()}</span>
+            </div>
+        `).join('');
+
+        // Invoice totals
+        const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+        const gst      = subtotal * 0.18;
+        document.getElementById('invTotals').innerHTML = `
+            <div class="inv-row"><span>Subtotal</span><span>Rs.${subtotal.toLocaleString()}</span></div>
+            <div class="inv-row"><span>GST 18%</span><span>Rs.${Math.round(gst).toLocaleString()}</span></div>
+            <div class="inv-row grand"><span>Grand Total</span><span>Rs.${Math.round(subtotal + gst).toLocaleString()}</span></div>
+        `;
+    }
+
+    function newOrder() { window.location.href = 'customer.html'; }
+
+    renderCheckout();
+    loadDefaultAddress();
+</script>
+</body>
+</html>
