@@ -26,7 +26,7 @@ public class AddressDAO {
                         rs.getString("city"),
                         rs.getString("state"),
                         rs.getString("pincode"),
-                        rs.getInt("is_default") == 1
+                        rs.getShort("is_default") == 1
                 ));
             }
         } catch (SQLException e) { e.printStackTrace(); }

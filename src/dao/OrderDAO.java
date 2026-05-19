@@ -78,10 +78,11 @@ public class OrderDAO {
     }
     public List<Map<String, Object>> getAllOrdersAsMap() {
         List<Map<String, Object>> list = new ArrayList<>();
-        String query = "SELECT o.order_id, u.name as customerName, " +
-                "o.order_date, o.total_amount " +
-                "FROM orders o JOIN users u ON o.user_id = u.user_id " +
-                "ORDER BY o.order_date DESC";
+        String query =
+                "SELECT o.order_id, u.name AS \"customerName\", " +
+                        "o.order_date, o.total_amount " +
+                        "FROM orders o JOIN users u ON o.user_id = u.user_id " +
+                        "ORDER BY o.order_date DESC";
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(query)) {
