@@ -1,6 +1,6 @@
 # SHOP.JAVA 🛍️
 
-A full-stack e-commerce web application built with Java Servlets, MySQL, and vanilla HTML/CSS/JS.
+A full-stack e-commerce web application built with Java Servlets,Postgesql, and vanilla HTML/CSS/JS.
 
 ## Features
 - User Authentication (Login/Register)
@@ -12,13 +12,13 @@ A full-stack e-commerce web application built with Java Servlets, MySQL, and van
 - Admin Panel for Product & Order Management
 
 ## Tech Stack
-| Layer | Technology |
-|-------|-----------|
-| Language | Java JDK 22 |
-| Backend | Java Servlets |
-| Server | Apache Tomcat 10 |
-| Database | MySQL 8.0 |
-| Frontend | HTML5, CSS3, JavaScript |
+| Layer | Technology                |
+|-------|---------------------------|
+| Language | Java JDK 22               |
+| Backend | Java Servlets             |
+| Server | Apache Tomcat 10          |
+| Database | Postgresql                |             
+| Frontend | HTML5, CSS3, JavaScript   |
 | Email | Jakarta Mail + Angus Mail |
 
 ## Project Structure
@@ -35,8 +35,8 @@ ECommerceApp/
 └── WEB-INF/     → Config and JARs
 ## Setup Instructions
 1. Import project in IntelliJ IDEA Ultimate
-2. Setup MySQL database using `ecommerce_db.sql`
-3. Update `DBConnection.java` with your MySQL password
+2. Setup Postgresql database using `ecommerce_db.sql`
+3. Update `DBConnection.java` with your Postgesql password
 4. Add Tomcat 10 server in IntelliJ
 5. Run the project
 
